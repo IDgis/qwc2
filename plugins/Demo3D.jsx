@@ -3,6 +3,8 @@ import {connect} from 'react-redux';
 
 import PropTypes from 'prop-types';
 
+import './style/Demo3D.css';
+
 class Demo3D extends React.Component {
     
     static propTypes = {
@@ -24,6 +26,15 @@ class Demo3D extends React.Component {
 
     render() {
         console.log("Demo3D render");
+
+        if (this.props.active) {
+            return (
+                <div id="demo3d">
+
+                </div>
+            )
+        }
+
         return null;
     }
 }
