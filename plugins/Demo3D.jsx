@@ -7,6 +7,8 @@ import './style/Demo3D.css';
 import MapUtils from '../utils/MapUtils';
 
 import { toLonLat, fromLonLat } from 'ol/proj';
+import ImageWMS from 'ol/source/ImageWMS';
+import WMTS from 'ol/source/WMTS';
 
 class Demo3D extends React.Component {
 
@@ -88,6 +90,46 @@ class Demo3D extends React.Component {
   
         const imageryLayer = new ImageryLayer(provider)
         viewer.imageryLayers.add(imageryLayer);
+
+        const layers = olMap.getAllLayers();
+        for (const layer of layers) {
+            if (!layer.getVisible()) {
+                continue;
+            }
+
+            const source = layer.getSource();
+            if (source instanceof ImageWMS) {
+                const add = () => {
+                    const url = source.getUrl();
+                    const params = source.getParams();
+                    console.log("ImageWMS", url, params);
+
+                    const provider = new WebMapServiceImageryProvider({
+                        url,
+                        layers: params["LAYERS"],
+                        parameters : {
+                        format: params["FORMAT"],
+                        transparent: params["TRANSPARENT"]
+                        }
+                    });
+
+                    const imageryLayer = new ImageryLayer(provider)
+                    viewer.imageryLayers.add(imageryLayer);
+
+                    const onChange = () => {
+                        console.log("ImageWMS onChange");
+
+                        viewer.imageryLayers.remove(imageryLayer);
+                        source.un("change", onChange);
+                        add();
+                    }
+                }
+
+                add();
+            }/* else if (source instanceof WMTS) {
+                console.log("WMTS", source);
+            }*/
+        }
 
         this.setState({...this.state, viewer});
     }
