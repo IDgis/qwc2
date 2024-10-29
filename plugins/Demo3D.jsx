@@ -1,9 +1,12 @@
 import React from 'react';
 
-import { Viewer, Cartesian3, Math as CesiumMath, Cesium3DTileset, WebMapServiceImageryProvider, WebMapTileServiceImageryProvider, ImageryLayer, Terrain, CesiumTerrainProvider } from 'cesium/Cesium';
+import { Viewer, Cartographic, Cartesian3, Math as CesiumMath, Cesium3DTileset, WebMapServiceImageryProvider, WebMapTileServiceImageryProvider, ImageryLayer, Terrain, CesiumTerrainProvider } from 'cesium/Cesium';
 import "cesium/Widgets/widgets.css";
 
 import './style/Demo3D.css';
+import MapUtils from '../utils/MapUtils';
+
+import { toLonLat, fromLonLat } from 'ol/proj';
 
 class Demo3D extends React.Component {
 
@@ -31,7 +34,16 @@ class Demo3D extends React.Component {
     }
 
     attach() {
-        console.log("attach");
+        const olMap = MapUtils.getHook(MapUtils.GET_MAP);
+        if (!olMap) {
+            console.error("Failed to obtain OpenLayers reference");
+            return;
+        }
+
+        const view = olMap.getView();
+        const center = view.getCenter();
+        const projection = view.getProjection();
+        const [lon, lat] = toLonLat(center, projection);
 
         const viewer = new Viewer(this.targetRef.current, {
             animation: false, // Disable the animation widget
@@ -54,14 +66,14 @@ class Demo3D extends React.Component {
 
         viewer.scene.camera.setView({
             destination: new Cartesian3.fromDegrees(
-              4.31707256,
-              52.0871042,
-              300,
+                lon,
+                lat,
+                300,
             ),
             orientation: {
-              heading: CesiumMath.toRadians(0.0),
-              pitch: CesiumMath.toRadians(-45.0),
-              roll: 0.0,
+                heading: CesiumMath.toRadians(0.0),
+                pitch: CesiumMath.toRadians(-45.0),
+                roll: 0.0,
             },
         });
 
@@ -81,7 +93,22 @@ class Demo3D extends React.Component {
     }
 
     dispose() {
-        console.log("dispose");
+        const olMap = MapUtils.getHook(MapUtils.GET_MAP);
+
+        if (this.state.viewer && olMap) {
+            const viewer = this.state.viewer;
+
+            const view = olMap.getView();
+            const projection = view.getProjection();
+
+            const { position } = viewer.scene.camera
+            const cartographic = Cartographic.fromCartesian(position);
+            const lat = CesiumMath.toDegrees(cartographic.latitude);
+            const lon = CesiumMath.toDegrees(cartographic.longitude);
+            const center = fromLonLat([lon, lat], projection);
+
+            view.setCenter(center);
+        }
 
         this.state.viewer?.destroy();
         this.setState({...this.state, viewer: null})
