@@ -1,45 +1,49 @@
 import React from 'react';
-import {connect} from 'react-redux';
-
-import PropTypes from 'prop-types';
 
 import './style/Demo3D.css';
 
 class Demo3D extends React.Component {
-    
-    static propTypes = {
-        /** Whether Demo3D is active */
-        active: PropTypes.bool
-    }
+
+    state = {
+        active: false
+    };
 
     constructor(props) {
         super(props);
-    }
 
-    componentDidMount() {
-        console.log("Demo3D mount");
+        this.targetRef = React.createRef();
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log("Demo3D update", prevProps, this.props, prevState, this.state);
+        if (this.state.active) {
+            if (!prevState.active) {
+                this.attach();
+            }
+        } else {
+            if (prevState.active) {
+                this.dispose();
+            }
+        }
+    }
+
+    attach() {
+        console.log("attach", this.targetRef.current);
+    }
+
+    dispose() {
+        console.log("dispose");
     }
 
     render() {
-        console.log("Demo3D render");
+        const label = `Switch to ${this.state.active ? "2D" : "3D"}`;
 
-        if (this.props.active) {
-            return (
-                <div id="demo3d">
-
-                </div>
-            )
-        }
-
-        return null;
+        return (
+            <div id="demo3d">
+                <button onClick={() => this.setState({...this.state, active: !this.state.active})}>{label}</button>
+                <div className="target" ref={this.targetRef}/>
+            </div>
+        );
     }
 }
 
-export default connect((state) => ({
-    active: state.task.id === "Demo3D",
-}), {
-})(Demo3D);
+export default Demo3D;
