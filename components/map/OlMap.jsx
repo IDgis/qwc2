@@ -12,6 +12,8 @@ import {connect} from 'react-redux';
 import ol from 'openlayers';
 import PropTypes from 'prop-types';
 
+import OLCesium from 'ol-cesium';
+
 import {changeMapView, clickOnMap} from '../../actions/map';
 import {changeMousePositionState} from '../../actions/mousePosition';
 import {setCurrentTask} from '../../actions/task';
@@ -143,6 +145,11 @@ class OlMap extends React.Component {
             this.ignoreNextClick = ignore;
         };
 
+        if (window.Cesium) {
+            const ol3d = new OLCesium({ map });
+            this.ol3d = ol3d;
+        }
+        
         this.map = map;
         this.registerHooks();
 
@@ -352,6 +359,7 @@ class OlMap extends React.Component {
         MapUtils.registerHook(MapUtils.GET_NATIVE_LAYER, (id) => {
             return this.map.getLayers().getArray().find(layer => layer.get('id') === id);
         });
+        MapUtils.registerHook(MapUtils.GET_OL3D, this.ol3d);
     };
 }
 

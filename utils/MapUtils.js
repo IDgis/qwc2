@@ -27,6 +27,7 @@ const MapUtils = {
     GET_COORDINATES_FROM_PIXEL_HOOK: 'GET_COORDINATES_FROM_PIXEL_HOOK',
     GET_NATIVE_LAYER: 'GET_NATIVE_LAYER',
     GET_MAP: 'GET_MAP',
+    GET_OL3D: 'GET_OL3D',
 
     registerHook(name, hook) {
         hooks[name] = hook;

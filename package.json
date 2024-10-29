@@ -37,6 +37,7 @@
         "mousetrap": "^1.6.5",
         "nearley": "^2.20.1",
         "ol": "^10.1.0",
+        "ol-cesium": "^2.17.0",
         "ol-ext": "^4.0.23",
         "ol-mapbox-style": "^12.3.5",
         "painterro": "^1.2.87",
